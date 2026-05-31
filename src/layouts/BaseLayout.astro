@@ -1,6 +1,6 @@
 import { formatCurrency } from "../lib/formats"
 import { db } from "../../db"
-import { transaction } from "../../db/schema/finances"
+import { transactions } from "../../db/schema/finances"
 import { sql, eq, and } from "drizzle-orm"
 
 const now = new Date()
