@@ -4,3 +4,4 @@ dist/
 *.sqlite
 db/migrations/
 .superpowers/
+docs/
