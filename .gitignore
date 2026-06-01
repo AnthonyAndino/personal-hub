@@ -5,3 +5,4 @@ dist/
 db/migrations/
 .superpowers/
 docs/
+.astro/
