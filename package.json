@@ -24,10 +24,12 @@
     }
   },
   "dependencies": {
+    "@astrojs/node": "^10.1.2",
     "@astrojs/preact": "^5.1.4",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.4.2",
     "drizzle-orm": "^0.45.2",
+    "preact": "^10.29.2",
     "sql.js": "^1.14.1",
     "tailwindcss": "^4.3.0"
   },
