@@ -1,0 +1,35 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import { db } from "../../../db"
+import { transactions, categories } from "../../../db/schema/finances"
+import { eq, desc } from "drizzle-orm"
+import { formatCurrency } from "../../lib/formats"
+import { getBalance, getCategoryTotals } from "../../services/finances"
+import BudgetChart from "../../components/widgets/BudgetChart.tsx"
+
+const now = new Date()
+const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString()
+const { income, expense, balance } = getBalance(monthStart, monthEnd)
+const categoryTotals = getCategoryTotals(monthStart, monthEnd)
+const recentTx = db.select({ transaction: transactions, category: categories }).from(transactions).leftJoin(categories, eq(transactions.categoryId, categories.id)).orderBy(desc(transactions.date)).limit(5).all()
+---
+
+<BaseLayout>
+  <h1 class="text-2xl font-bold mb-6">💰 Resumen Financiero</h1>
+  <div class="grid grid-cols-3 gap-4 mb-8">
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800"><p class="text-sm text-slate-400">Ingresos</p><p class="text-xl font-bold text-emerald-400">{formatCurrency(income)}</p></div>
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800"><p class="text-sm text-slate-400">Gastos</p><p class="text-xl font-bold text-red-400">{formatCurrency(expense)}</p></div>
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800"><p class="text-sm text-slate-400">Balance</p><p class={`text-xl font-bold ${balance >= 0 ? "text-emerald-400" : "text-red-400"}`}>{formatCurrency(balance)}</p></div>
+  </div>
+  <div class="grid grid-cols-2 gap-6 mb-8">
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+      <h2 class="text-lg font-semibold mb-3">Gastos por Categoría</h2>
+      <BudgetChart client:load data={categoryTotals} />
+    </div>
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+      <h2 class="text-lg font-semibold mb-3">Transacciones Recientes</h2>
+      <div class="space-y-2">{recentTx.map(t => <div class="flex justify-between items-center py-1 border-b border-slate-800 last:border-0"><span class="text-sm">{t.category?.name || "Sin categoría"}</span><span class={`text-sm font-medium ${t.transaction.type === "income" ? "text-emerald-400" : "text-red-400"}`}>{t.transaction.type === "income" ? "+" : "-"}{formatCurrency(t.transaction.amount)}</span></div>)}</div>
+    </div>
+  </div>
+</BaseLayout>

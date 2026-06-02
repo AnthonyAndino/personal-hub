@@ -1,0 +1,24 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import { listCategories } from "../../services/finances"
+import { listBudgets } from "../../services/finances"
+import { formatCurrency } from "../../lib/formats"
+
+const allCategories = listCategories()
+const allBudgets = listBudgets()
+---
+
+<BaseLayout>
+  <h1 class="text-2xl font-bold mb-6">🎯 Presupuestos</h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {allCategories.filter(c => c.type === "expense").map(cat => {
+      const budget = allBudgets.find(b => b.budget.categoryId === cat.id)
+      return <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+        <div class="flex justify-between items-center mb-2">
+          <span class="font-medium">{cat.name}</span>
+          <span class="text-sm text-slate-400">{budget ? formatCurrency(budget.budget.monthlyLimit) + "/mes" : "Sin presupuesto"}</span>
+        </div>
+      </div>
+    })}
+  </div>
+</BaseLayout>

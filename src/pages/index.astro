@@ -1,0 +1,39 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro"
+import { db } from "../../db"
+import { todos } from "../../db/schema/todos"
+import { eq, asc } from "drizzle-orm"
+import { formatCurrency } from "../lib/formats"
+import { getBalance, getCategoryTotals } from "../services/finances"
+import { getWishlistSummary } from "../services/wishlist"
+import BudgetChart from "../components/widgets/BudgetChart.tsx"
+
+const now = new Date()
+const ms = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+const me = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString()
+
+const { balance } = getBalance(ms, me)
+const catTotals = getCategoryTotals(ms, me)
+const pendingTodos = db.select().from(todos).where(eq(todos.status, "pending")).orderBy(asc(todos.dueDate)).limit(5).all()
+const wish = getWishlistSummary()
+---
+
+<BaseLayout>
+  <h1 class="text-2xl font-bold mb-6">📊 Dashboard</h1>
+  <div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800"><p class="text-sm text-slate-400">Balance del Mes</p><p class={`text-xl font-bold ${balance >= 0 ? "text-emerald-400" : "text-red-400"}`}>{formatCurrency(balance)}</p></div>
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800"><p class="text-sm text-slate-400">Tareas Pendientes</p><p class="text-xl font-bold text-blue-400">{pendingTodos.length}</p></div>
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800"><p class="text-sm text-slate-400">Ahorro / Metas</p><p class="text-xl font-bold text-orange-400">{formatCurrency(wish.totalSaved)} / {formatCurrency(wish.totalEstimated)}</p></div>
+  </div>
+  <div class="grid grid-cols-2 gap-6">
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+      <h2 class="text-lg font-semibold mb-3">Gastos del Mes</h2>
+      <BudgetChart client:load data={catTotals} />
+    </div>
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+      <h2 class="text-lg font-semibold mb-3">Tareas Próximas</h2>
+      <div class="space-y-2">{pendingTodos.map(t => <div class="py-1 border-b border-slate-800 last:border-0"><p class="text-sm">{t.title}</p><p class="text-xs text-slate-500">{t.dueDate ? `Vence: ${new Date(t.dueDate).toLocaleDateString("es-CR")}` : "Sin fecha"}</p></div>)}</div>
+      {pendingTodos.length === 0 && <p class="text-sm text-slate-500 text-center py-4">¡Todo al día!</p>}
+    </div>
+  </div>
+</BaseLayout>
