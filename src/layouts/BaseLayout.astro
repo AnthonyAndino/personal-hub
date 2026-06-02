@@ -1,14 +1,11 @@
 import "../styles/global.css"
 import { formatCurrency } from "../lib/formats"
-import { db } from "../../db"
-import { transactions } from "../../db/schema/finances"
-import { sql, eq, and } from "drizzle-orm"
+import { getBalance } from "../services/finances"
 
 const now = new Date()
 const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-const income = db.select({ total: sql<number>`coalesce(sum(amount),0)` }).from(transactions).where(and(eq(transactions.type, "income"), sql`date >= ${monthStart}`)).get()
-const expense = db.select({ total: sql<number>`coalesce(sum(amount),0)` }).from(transactions).where(and(eq(transactions.type, "expense"), sql`date >= ${monthStart}`)).get()
-const balance = (income?.total ?? 0) - (expense?.total ?? 0)
+const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString()
+const { balance } = getBalance(monthStart, monthEnd)
 
 <!DOCTYPE html>
 <html lang="es" class="dark">
