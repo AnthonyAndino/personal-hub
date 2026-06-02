@@ -1,0 +1,20 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import { getWishlistSummary } from "../../services/wishlist"
+import { formatCurrency } from "../../lib/formats"
+import WishlistGrid from "../../components/widgets/WishlistGrid.tsx"
+import WishlistForm from "../../components/widgets/WishlistForm.tsx"
+
+const summary = getWishlistSummary()
+---
+
+<BaseLayout>
+  <h1 class="text-2xl font-bold mb-6">🎁 Lista de Deseos</h1>
+  <div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800"><p class="text-sm text-slate-400">Total estimado</p><p class="text-xl font-bold">{formatCurrency(summary.totalEstimated)}</p></div>
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800"><p class="text-sm text-slate-400">Ahorrado</p><p class="text-xl font-bold text-emerald-400">{formatCurrency(summary.totalSaved)}</p></div>
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800"><p class="text-sm text-slate-400">Falta</p><p class="text-xl font-bold text-orange-400">{formatCurrency(summary.remaining)}</p></div>
+  </div>
+  <WishlistForm client:load />
+  <div class="mt-6"><WishlistGrid client:load items={summary.items} /></div>
+</BaseLayout>

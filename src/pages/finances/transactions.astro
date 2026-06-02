@@ -1,0 +1,14 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import { listCategories } from "../../services/finances"
+import TransactionForm from "../../components/widgets/TransactionForm.tsx"
+import TransactionList from "../../components/widgets/TransactionList.tsx"
+
+const allCategories = listCategories()
+---
+
+<BaseLayout>
+  <h1 class="text-2xl font-bold mb-6">📋 Transacciones</h1>
+  <TransactionForm client:load categories={allCategories} />
+  <div class="mt-6"><TransactionList client:load categories={allCategories} /></div>
+</BaseLayout>

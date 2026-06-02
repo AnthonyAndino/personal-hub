@@ -1,0 +1,15 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import { listProjects, listTodos } from "../../services/todos"
+import TodoForm from "../../components/widgets/TodoForm.tsx"
+import TodoList from "../../components/widgets/TodoList.tsx"
+
+const projects = listProjects()
+const allTodos = listTodos()
+---
+
+<BaseLayout>
+  <h1 class="text-2xl font-bold mb-6">✅ Tareas</h1>
+  <TodoForm client:load projects={projects} tags={[]} />
+  <div class="mt-6"><TodoList client:load todos={allTodos} projects={projects} /></div>
+</BaseLayout>

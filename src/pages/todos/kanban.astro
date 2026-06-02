@@ -1,0 +1,13 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import TodoKanban from "../../components/widgets/TodoKanban.tsx"
+import { listTodos, listProjects } from "../../services/todos"
+
+const todos = listTodos()
+const projects = listProjects()
+---
+
+<BaseLayout>
+  <h1 class="text-2xl font-bold mb-6">📌 Kanban</h1>
+  <TodoKanban client:load todos={todos} projects={projects} />
+</BaseLayout>
